@@ -16,37 +16,42 @@ def send_chat_message(text):
     return len(text)
 
 
-def execute_command(pcommand):
+def execute_command(pcommand: str):
     message_len = 0
-    if pcommand == "/help":
+    if pcommand.startswith("/help"):
         message_len = send_chat_message("""
         This is the help:
         - Type /help to get help (english)
         - Tippe /hilfe um hilfe zu erhalten (Deutsch)
-        - Type /frage to send a question-ping to the tutor
+        - Type /frage to send a question-ping to the tutor. You can also start your question with /frage to mark your message as a question
         - Type /mic to send a your-mic-is-off-ping to the tutor
         """)
 
-    if pcommand == "/hilfe":
+    if pcommand.startswith("/hilfe"):
         message_len = send_chat_message("""
         Das ist die Hilfe:
         - Type /help to get help (english)
         - Tippe /hilfe um hilfe zu erhalten (Deutsch)
-        - Tippe /frage um dem Tutor einen Frage-Ping zu senden, fals er dich nicht bemerkt
+        - Tippe /frage um dem Tutor einen Frage-Ping zu senden, fals er dich nicht bemerkt. Du kanst deine Frage auch mit /frage beginnen um diese als Frage zu markieren
         - Tippe /mic wenn der Tutor vergessen hat sein Micro einzuschlaten, um ihn darauf hinzuweisen 
         """)
 
-    if pcommand == "/frage":
+    if pcommand.startswith("/frage"):
         playsound("bell-1.wav")
-        print("[!] a student got a question")
+        print("[!] a student got a question: {pcommand}")
 
-    if pcommand == "/mic":
+    if pcommand.startswith("/mic"):
         playsound("bell-2.wav")
-        print("[!] you forgott your mic")
+        print("[!] you forgott your mic !")
         # TODO add Popup Window
 
     if pcommand == "/hydro":
         message_len = send_chat_message("stay hydryded")
+
+    if pcommand == "/answered":
+        msg = "--- all questions before this message are marked as answered ---"
+        message_len = send_chat_message(msg)
+        print(msg)
 
     return message_len
 
