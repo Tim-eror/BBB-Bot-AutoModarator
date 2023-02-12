@@ -1,14 +1,15 @@
 import configparser
-import winsound  # TODO use sound lib that is linux compatible
+from playsound import playsound
 from selenium import webdriver
 import time
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 
 def send_chat_message(text):
     # identify the bar to enter chat messages
-    message_bar = driver.find_element_by_id("message-input")
+    message_bar = driver.find_element(By.ID,"message-input")
     # Write  message
     message_bar.send_keys(text)
     message_bar.send_keys(Keys.ENTER)
@@ -21,7 +22,7 @@ def execute_command(pcommand):
         message_len = send_chat_message("""
         This is the help:
         - Type /help to get help (english)
-        - Tippe /help um hilfe zu erhalten (Deutsch)
+        - Tippe /hilfe um hilfe zu erhalten (Deutsch)
         - Type /frage to send a question-ping to the tutor
         - Type /mic to send a your-mic-is-off-ping to the tutor
         """)
@@ -29,23 +30,29 @@ def execute_command(pcommand):
     if pcommand == "/hilfe":
         message_len = send_chat_message("""
         Das ist die Hilfe:
-        - Tippe /help um hilfe zu erhalten (Deutshc)
-        - Type /hilfe to get help (german) *in work*
+        - Type /help to get help (english)
+        - Tippe /hilfe um hilfe zu erhalten (Deutsch)
         - Tippe /frage um dem Tutor einen Frage-Ping zu senden, fals er dich nicht bemerkt
         - Tippe /mic wenn der Tutor vergessen hat sein Micro einzuschlaten, um ihn darauf hinzuweisen 
         """)
 
     if pcommand == "/frage":
-        winsound.MessageBeep()
-        print("a student got a question")
+        playsound("bell-1.wav")
+        print("[!] a student got a question")
 
-    if pcommand == "/frage":
-        winsound.MessageBeep()
-        print("you forgott your mic")
+    if pcommand == "/mic":
+        playsound("bell-2.wav")
+        print("[!] you forgott your mic")
         # TODO add Popup Window
+
+    if pcommand == "/hydro":
+        message_len = send_chat_message("stay hydryded")
 
     return message_len
 
+def findMessages(driver: webdriver.Firefox):
+    msg = driver.find_elements(By.XPATH,'//*[@data-test="chatUserMessageText"]')
+    return msg
 
 if __name__ == '__main__':
 
@@ -56,21 +63,22 @@ if __name__ == '__main__':
     welcome_message = config["DEFAULT"]["Welcome_Message"]
     tick_time = int(config["DEFAULT"]["Tick_Time"])
     room_name = config["LOGIN-CREDENTIALS"]["Room_Name"]
+    sever_name = config["LOGIN-CREDENTIALS"]["Sever_Name"]
 
     # testing audios
     if config["SETTINGS"]["Play_Audio_Test"] == "True":
-        print("testing audio - please turn up the volume to preferred point")
-        winsound.Beep(440, 3000)
+        print("[!] testing audio - please turn up the volume to preferred point")
+        playsound("bell-3.wav")
 
     # start driver
-    print("starting driver")
-    driver = webdriver.Firefox(executable_path=r'D:\Programme\geckodriver-v0.29.1-win64\geckodriver.exe')
+    print("[-] starting driver")
+    driver = webdriver.Firefox()
 
     # navigate to the url
     driver.get("https://bbb.informatik.uni-bonn.de/b/"+room_name)
-
+    print("[-] loggin in")
     # identify the bar to enter name
-    ele = driver.find_element_by_name("/b/"+room_name+"[join_name]")
+    ele = driver.find_element(By.ID,"_b_"+room_name+"_join_name")
     # Write login name
     ele.send_keys(bot_name)
     ele.send_keys(Keys.ENTER)  # Enter (send)
@@ -78,31 +86,37 @@ if __name__ == '__main__':
     time.sleep(5)  # Need expliced waiting
 
     # send welcome message
+    
     if welcome_message != "":
+        print("[-] sending welcome")
         send_chat_message(welcome_message)
 
+    print("[-] Escaping Popup")
     # Escape Popup *not working*
     ActionChains(driver).send_keys(Keys.ESCAPE).perform()
-
+    print("[*] Up and running...")
     # identify chat and start listing
-    # ele = driver.find_elements_by_id("chat-messages")
-    old_len = len(driver.find_elements_by_class_name("message--Z2n2nXu"))
+    last_msg = findMessages(driver)[-1]
     while True:
-        messages = driver.find_elements_by_class_name("message--Z2n2nXu")
+        messages = findMessages(driver)
+        
+        #print(f"[-] m: {len(messages)}  -1: {messages[-1].text}")
+        
+        i = 1
+        msg = messages[-i]
+        while msg != last_msg:
+            if i<len(messages):
+                i += 1
+            else:
+                break
 
-        if len(messages) == 0:
-            old_len = 0
-            continue
-
-        if len(messages) > old_len:
-
-            for i in range(0, (len(messages)-old_len)):
-                command = str(messages[-(i+1)].text)
-                print("Message: " + command)
-                if command.startswith("/"):
-                    execute_command(command.lower())
-                    print("Command: " + command)
-            old_len = len(messages)
+            command = str(msg.text)
+            #print(f"[-] Message {i}: " + command)
+            if command.startswith("/"):
+                execute_command(command.lower())
+                #print("[-] Command: " + command)
+            msg = messages[-i]
+        last_msg = findMessages(driver)[-1]
         time.sleep(tick_time)
 
 
