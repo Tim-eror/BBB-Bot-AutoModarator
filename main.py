@@ -52,6 +52,9 @@ def execute_command(pcommand: str):
         msg = "--- all questions before this message are marked as answered ---"
         message_len = send_chat_message(msg)
         print(msg)
+    
+    if "Folien" in pcommand and "haben" in pcommand or pcommand == "/folien":
+        message_len = send_chat_message("Auszüge der Folien werden im Anschluss an des Tutoriums auf sciebo hochgeladen. Link siehe Geteilte Notizen")
 
     return message_len
 
