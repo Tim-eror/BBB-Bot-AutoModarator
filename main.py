@@ -37,13 +37,14 @@ def execute_command(pcommand: str):
         """)
 
     if pcommand.startswith("/frage"):
+        print(f"[!] a student got a question: {pcommand}")
         playsound("bell-1.wav")
-        print("[!] a student got a question: {pcommand}")
+        
 
     if pcommand.startswith("/mic"):
-        playsound("bell-2.wav")
         print("[!] you forgott your mic !")
-        # TODO add Popup Window
+        playsound("bell-2.wav")
+        #TODO add Popup Window
 
     if pcommand == "/hydro":
         message_len = send_chat_message("stay hydryded")
@@ -74,9 +75,7 @@ if __name__ == '__main__':
     sever_name = config["LOGIN-CREDENTIALS"]["Sever_Name"]
 
     # testing audios
-    if config["SETTINGS"]["Play_Audio_Test"] == "True":
-        print("[!] testing audio - please turn up the volume to preferred point")
-        playsound("bell-3.wav")
+    
 
     # start driver
     print("[-] starting driver")
@@ -90,9 +89,11 @@ if __name__ == '__main__':
     # Write login name
     ele.send_keys(bot_name)
     ele.send_keys(Keys.ENTER)  # Enter (send)
+    time.sleep(7)  # Need expliced waiting
 
-    time.sleep(5)  # Need expliced waiting
-
+    if config["SETTINGS"]["Play_Audio_Test"] == "True":
+        print("[!] testing audio - please turn up the volume to preferred point")
+        playsound("bell-3.wav")
     # send welcome message
     
     if welcome_message != "":
