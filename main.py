@@ -107,24 +107,24 @@ if __name__ == '__main__':
     last_msg = findMessages(driver)[-1]
     while True:
         messages = findMessages(driver)
-        
+        if len(messages)>0:
         #print(f"[-] m: {len(messages)}  -1: {messages[-1].text}")
-        
-        i = 1
-        msg = messages[-i]
-        while msg != last_msg:
-            if i<len(messages):
-                i += 1
-            else:
-                break
-
-            command = str(msg.text)
-            #print(f"[-] Message {i}: " + command)
-            if command.startswith("/"):
-                execute_command(command.lower())
-                #print("[-] Command: " + command)
+    
+            i = 1
             msg = messages[-i]
-        last_msg = findMessages(driver)[-1]
+            while msg != last_msg:
+                if i<len(messages):
+                    i += 1
+                else:
+                    break
+
+                command = str(msg.text)
+                #print(f"[-] Message {i}: " + command)
+                if command.startswith("/"):
+                    execute_command(command.lower())
+                    #print("[-] Command: " + command)
+                msg = messages[-i]
+            last_msg = findMessages(driver)[-1]
         time.sleep(tick_time)
 
 

@@ -1,0 +1,11 @@
+[DEFAULT]
+Bot_Name = PingBot-Automoderator
+Welcome_Message = Bot is online
+Tick_Time = 3
+
+[SETTINGS]
+Play_Audio_Test = True
+
+[LOGIN-CREDENTIALS]
+Room_Name = 
+Sever_Name = 
